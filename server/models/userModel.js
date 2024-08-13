@@ -4,31 +4,59 @@ dotenv.config();
 
 // db connection
 const pool = mariadb.createPool({
-    host: process.env.DB_HOST, 
-    user: process.env.DB_USER, 
-    password: process.env.DB_PWD,
-    database: process.env.DB_NAME,
-    connectionLimit: 5
-  });
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PWD,
+  database: process.env.DB_NAME,
+  connectionLimit: 5
+});
 
 // arrowfunction
 const getAllUsers = async () => {
-    let conn; // 연결 설정 변수(연결 POOL)
-    try {
-        conn = await pool.getConnection();
-        const rows = await conn.query("SELECT * FROM users");
-        return rows;
-    } catch(err) {
-        console.log(err);
-    } finally {
-        if(conn) conn.end();
-    }
+  let conn; // 연결 설정 변수(연결 POOL)
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query("SELECT * FROM users");
+    return rows;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    if (conn) conn.end();
   }
+}
 
-  // 객체(Object)
-  // 자바스크립트 자료형을 담을 수 있다
-  const userModel = {
-    getAllUsers
+const getOneUser = async (userId) => {
+  let conn; // 연결 설정 변수(연결 POOL)
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query("SELECT * FROM users WHERE id =?", [userId]);
+    return rows;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    if (conn) conn.end();
   }
+}
 
-  export default userModel;
+const addOneUser = async (userId, userName, userEmail) => {
+  let conn; // 연결 설정 변수(연결 POOL)
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query("INSERT INTO users (id, name, email) VALUES (?,?,?)", [userId, userName, userEmail]);
+    return rows;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    if (conn) conn.end();
+  }
+}
+
+// 객체(Object)
+// 자바스크립트 자료형을 담을 수 있다
+const userModel = {
+  getAllUsers,
+  getOneUser,
+  addOneUser
+}
+
+export default userModel;
