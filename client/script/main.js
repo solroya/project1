@@ -18,6 +18,7 @@ window.addEventListener("DOMContentLoaded", function(){
                 `;
                 usersTbl.appendChild(row);
             })
+            loadBtn.disabled = true;
         });
         
     })
