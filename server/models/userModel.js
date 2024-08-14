@@ -1,5 +1,7 @@
 import mariadb from "mariadb";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+
 dotenv.config();
 
 // db connection
@@ -38,16 +40,18 @@ const getOneUser = async (userId) => {
   }
 }
 
-const addOneUser = async (userId, userName, userEmail) => {
+const addUser = async (id, pwd, name, nickname, email, pwd_hint) => {
   let conn; // 연결 설정 변수(연결 POOL)
+  const saltRounds = 10;
+  const hashedPwd = await bcrypt.hash(pwd, saltRounds); //해싱된 비밀번호 생성
   try {
     conn = await pool.getConnection();
-    const rows = await conn.query("INSERT INTO users (id, name, email) VALUES (?,?,?)", [userId, userName, userEmail]);
+    const rows = await conn.query("INSERT INTO users (id, pwd, name, nickname, email, pwd_hint) VALUES (?,?,?,?,?,?)", [id, hashedPwd, name, nickname, email, pwd_hint]);
     return rows;
   } catch (err) {
     console.log(err);
   } finally {
-    if (conn) conn.end();
+    if (conn) conn.end(); // pool 자체 종료
   }
 }
 
@@ -56,7 +60,7 @@ const addOneUser = async (userId, userName, userEmail) => {
 const userModel = {
   getAllUsers,
   getOneUser,
-  addOneUser
+  addUser
 }
 
 export default userModel;
